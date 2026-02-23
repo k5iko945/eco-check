@@ -3,129 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCheck – Expose Greenwashing</title>
-    <!-- Tailwind CSS -->
+    <title>Greenwashing Checker – Rate Any Product</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Smooth transitions */
-        .card { transition: transform 0.2s, box-shadow 0.2s; }
-        .card:hover { transform: translateY(-2px); }
-        .grade-badge { transition: all 0.2s; }
-        .hidden { display: none; }
+        .question-card { transition: all 0.2s; }
+        .grade-badge { font-size: 3rem; line-height: 1; }
     </style>
 </head>
 <body class="bg-gray-50 p-4 md:p-6 font-sans">
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-3xl mx-auto">
         <!-- Header -->
-        <header class="text-center mb-6">
-            <h1 class="text-5xl font-bold text-green-700">🌱 EcoCheck</h1>
-            <p class="text-gray-600 mt-2 text-lg">Your weapon against greenwashing – see the real story behind "eco-friendly" claims.</p>
+        <header class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-green-700">🌱 Greenwashing Checker</h1>
+            <p class="text-gray-600 mt-2 text-lg">Answer a few questions about any product – we'll tell you if it's truly green or just pretending.</p>
         </header>
 
-        <!-- Greenwashing Explainer (Collapsible) -->
-        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
-            <div class="flex justify-between items-center">
-                <h2 class="font-bold text-blue-800"><i class="fas fa-info-circle mr-2"></i> What is greenwashing?</h2>
-                <button id="toggleExplain" class="text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-chevron-down"></i> <span id="toggleText">Show</span>
-                </button>
-            </div>
-            <div id="explainerContent" class="hidden mt-3 text-sm text-gray-700">
-                <p>Companies often use misleading tactics to appear more environmentally friendly than they are. Common red flags:</p>
-                <ul class="list-disc ml-6 mt-2 space-y-1">
-                    <li><strong>Vague terms:</strong> "all-natural", "eco-friendly", "green" – no proof.</li>
-                    <li><strong>Hidden trade-offs:</strong> "Recycled" but non-recyclable packaging.</li>
-                    <li><strong>Irrelevant claims:</strong> "CFC-free" (CFCs are already banned).</li>
-                    <li><strong>Lesser of two evils:</strong> "Organic cigarettes" – still harmful.</li>
-                    <li><strong>Fake labels:</strong> Lookalike certifications that don't exist.</li>
-                </ul>
-                <p class="mt-2">Our grades cut through the noise. Hover over any grade to see our criteria.</p>
-            </div>
-        </div>
-
-        <!-- Dashboard Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white p-3 rounded-lg shadow text-center">
-                <div class="text-2xl font-bold text-green-600" id="totalProducts">0</div>
-                <div class="text-xs text-gray-500">Products Rated</div>
-            </div>
-            <div class="bg-white p-3 rounded-lg shadow text-center">
-                <div class="text-2xl font-bold text-green-600" id="avgGrade">-</div>
-                <div class="text-xs text-gray-500">Average Grade</div>
-            </div>
-            <div class="bg-white p-3 rounded-lg shadow text-center">
-                <div class="text-2xl font-bold text-green-600" id="countA">0</div>
-                <div class="text-xs text-gray-500">Grade A</div>
-            </div>
-            <div class="bg-white p-3 rounded-lg shadow text-center">
-                <div class="text-2xl font-bold text-red-600" id="countF">0</div>
-                <div class="text-xs text-gray-500">Grade F (Greenwashed)</div>
-            </div>
-        </div>
-
-        <!-- Search & Filters -->
-        <div class="bg-white p-4 rounded-lg shadow-md mb-6">
-            <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="search" placeholder="Search product or brand..." 
-                       class="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
-                <select id="categoryFilter" class="p-2 border border-gray-300 rounded">
-                    <option value="">All Categories</option>
-                    <option value="Cleaning">Cleaning</option>
-                    <option value="Snacks">Snacks</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Personal Care">Personal Care</option>
-                </select>
-                <select id="gradeFilter" class="p-2 border border-gray-300 rounded">
-                    <option value="">All Grades</option>
-                    <option value="A">A (Excellent)</option>
-                    <option value="B">B (Good)</option>
-                    <option value="C">C (Average)</option>
-                    <option value="D">D (Poor)</option>
-                    <option value="F">F (Greenwashed)</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Suggest a Product Button & Form -->
-        <div class="mb-6">
-            <button id="suggestBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-                <i class="fas fa-plus-circle mr-2"></i> Suggest a Product
-            </button>
-            <div id="suggestionForm" class="hidden mt-4 p-4 bg-white rounded-lg shadow border">
-                <h3 class="font-bold text-lg mb-2">Suggest a product to review</h3>
-                <input type="text" id="suggestName" placeholder="Product name" class="w-full p-2 border rounded mb-2">
-                <input type="text" id="suggestBrand" placeholder="Brand" class="w-full p-2 border rounded mb-2">
-                <select id="suggestCategory" class="w-full p-2 border rounded mb-2">
-                    <option value="Cleaning">Cleaning</option>
-                    <option value="Snacks">Snacks</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Personal Care">Personal Care</option>
-                </select>
-                <textarea id="suggestReason" placeholder="Why should we look into this product?" class="w-full p-2 border rounded mb-2" rows="2"></textarea>
-                <div class="flex gap-2">
-                    <button id="submitSuggestion" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Submit</button>
-                    <button id="cancelSuggestion" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+        <!-- Main Form Card -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <form id="checkerForm">
+                <!-- Product Name (optional, for context) -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2" for="productName">Product Name (optional)</label>
+                    <input type="text" id="productName" placeholder="e.g., 'EcoClean All-Purpose Spray'" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
                 </div>
-            </div>
-            <!-- Pending suggestions (stored locally) -->
-            <div id="pendingSuggestions" class="mt-4"></div>
+
+                <!-- Question 1: Certifications -->
+                <div class="question-card bg-gray-50 p-4 rounded-lg mb-4">
+                    <p class="font-medium text-gray-800 mb-2">1. Does the product have any trusted third‑party certifications?</p>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q1" value="yes" class="text-green-600" required> <span>Yes (e.g., B Corp, Fair Trade, USDA Organic, Energy Star)</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q1" value="no"> <span>No or unsure</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Real certifications are verifiable and specific.</p>
+                </div>
+
+                <!-- Question 2: Packaging -->
+                <div class="question-card bg-gray-50 p-4 rounded-lg mb-4">
+                    <p class="font-medium text-gray-800 mb-2">2. Is the packaging minimal, recyclable, or plastic‑free?</p>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q2" value="yes"> <span>Yes</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q2" value="no"> <span>No (excessive plastic, non‑recyclable)</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Look for recycled content or refill options.</p>
+                </div>
+
+                <!-- Question 3: Vague Claims -->
+                <div class="question-card bg-gray-50 p-4 rounded-lg mb-4">
+                    <p class="font-medium text-gray-800 mb-2">3. Does the product use vague green terms like "all‑natural", "eco‑friendly", or "green"?</p>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q3" value="yes"> <span>Yes</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q3" value="no"> <span>No, claims are specific (e.g., "made with 50% recycled plastic")</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Vague terms without proof are a major red flag.</p>
+                </div>
+
+                <!-- Question 4: Ingredient/ Material Transparency -->
+                <div class="question-card bg-gray-50 p-4 rounded-lg mb-4">
+                    <p class="font-medium text-gray-800 mb-2">4. Are all ingredients or materials fully disclosed?</p>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q4" value="yes"> <span>Yes, full list easily found</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q4" value="no"> <span>No, or vague terms like "fragrance"</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Transparency builds trust.</p>
+                </div>
+
+                <!-- Question 5: Brand Reputation -->
+                <div class="question-card bg-gray-50 p-4 rounded-lg mb-6">
+                    <p class="font-medium text-gray-800 mb-2">5. Is the brand known for sustainability (or owned by a parent company with a poor record)?</p>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q5" value="good"> <span>Good reputation / dedicated sustainable brand</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q5" value="mixed"> <span>Mixed or unknown</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="q5" value="bad"> <span>Known for greenwashing / environmentally harmful</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle"></i> Check if the parent company has a history of violations.</p>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition">
+                    <i class="fas fa-search mr-2"></i>Check Greenwashing Risk
+                </button>
+            </form>
         </div>
 
-        <!-- Results Grid -->
-        <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Cards will be injected here -->
+        <!-- Results Section (initially hidden) -->
+        <div id="resultCard" class="bg-white rounded-xl shadow-lg p-6 hidden">
+            <h2 class="text-2xl font-bold mb-2">Result for <span id="resultProductName">your product</span></h2>
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-gray-600">Greenwashing Risk Grade:</span>
+                <span id="grade" class="grade-badge font-bold px-6 py-2 rounded-full"></span>
+            </div>
+            <p id="explanation" class="text-gray-700 mb-4"></p>
+            <div id="improvements" class="bg-green-50 p-4 rounded-lg">
+                <h3 class="font-semibold text-green-800"><i class="fas fa-lightbulb mr-2"></i>What this means & how to improve</h3>
+                <p id="advice" class="text-sm mt-2"></p>
+            </div>
+            <button id="newCheck" class="mt-6 text-green-600 hover:text-green-800 font-medium">
+                <i class="fas fa-arrow-left mr-1"></i> Check another product
+            </button>
         </div>
 
         <!-- Footer -->
         <footer class="text-center text-gray-500 text-sm mt-8 border-t pt-4">
-            Data curated from public sources. Last updated: <span id="globalLastUpdated">2025-02-20</span>.
+            Based on common greenwashing red flags. Not a substitute for expert research.
         </footer>
     </div>
 
-    <!-- Data and Script -->
-    <script src="data.js"></script>
-    <script src="script.js"></script>
+    <script>
+        (function() {
+            // DOM elements
+            const form = document.getElementById('checkerForm');
+            const resultCard = document.getElementById('resultCard');
+            const resultProductName = document.getElementById('resultProductName');
+            const gradeSpan = document.getElementById('grade');
+            const explanationP = document.getElementById('explanation');
+            const adviceP = document.getElementById('advice');
+            const newCheckBtn = document.getElementById('newCheck');
+
+            // Scoring weights
+            const weights = {
+                q1: { yes: 2, no: 0 },      // certification: big plus
+                q2: { yes: 2, no: 0 },       // good packaging
+                q3: { yes: -2, no: 1 },      // vague claims: big minus
+                q4: { yes: 1, no: -1 },       // transparency
+                q5: { good: 2, mixed: 0, bad: -2 }
+            };
+
+            // Grade boundaries (total score)
+            const gradeMap = [
+                { max: -3, grade: 'F', desc: 'Very high greenwashing risk – likely misleading.' },
+                { max: -1, grade: 'D', desc: 'High greenwashing risk – many red flags.' },
+                { max: 2, grade: 'C', desc: 'Moderate risk – some good points, but concerns remain.' },
+                { max: 4, grade: 'B', desc: 'Low risk – fairly transparent and responsible.' },
+                { max: 6, grade: 'A', desc: 'Very low risk – strong evidence of genuine sustainability.' }
+            ];
+
+            // Detailed advice based on grade
+            const adviceMap = {
+                'A': 'This product appears to be genuinely sustainable. Look for third-party certifications and transparency – they are good signs. Continue supporting such brands!',
+                'B': 'This product is on the right track but could improve in areas like packaging or ingredient disclosure. Check if they have a roadmap for better practices.',
+                'C': 'Mixed signals. The product has some positive attributes, but there are also vague claims or lack of transparency. Dig deeper or look for alternatives.',
+                'D': 'Several greenwashing red flags. Be skeptical of claims – they likely exaggerate environmental benefits. Consider avoiding unless you can verify independently.',
+                'F': 'Very likely greenwashing. The product uses vague terms, lacks transparency, or the brand has a poor record. Best to avoid and choose a certified alternative.'
+            };
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get form values
+                const productName = document.getElementById('productName').value.trim() || 'this product';
+                const q1 = document.querySelector('input[name="q1"]:checked')?.value;
+                const q2 = document.querySelector('input[name="q2"]:checked')?.value;
+                const q3 = document.querySelector('input[name="q3"]:checked')?.value;
+                const q4 = document.querySelector('input[name="q4"]:checked')?.value;
+                const q5 = document.querySelector('input[name="q5"]:checked')?.value;
+
+                // Validate: all questions except product name are required
+                if (!q1 || !q2 || !q3 || !q4 || !q5) {
+                    alert('Please answer all questions.');
+                    return;
+                }
+
+                // Calculate score
+                let score = 0;
+                score += weights.q1[q1] || 0;
+                score += weights.q2[q2] || 0;
+                score += weights.q3[q3] || 0;
+                score += weights.q4[q4] || 0;
+                score += weights.q5[q5] || 0;
+
+                // Determine grade
+                let grade = 'F';
+                let description = '';
+                for (let level of gradeMap) {
+                    if (score <= level.max) {
+                        grade = level.grade;
+                        description = level.desc;
+                        break;
+                    }
+                }
+
+                // Display result
+                resultProductName.textContent = productName;
+                gradeSpan.textContent = grade;
+
+                // Set grade color
+                gradeSpan.className = 'grade-badge font-bold px-6 py-2 rounded-full ';
+                if (grade === 'A') gradeSpan.classList.add('bg-green-100', 'text-green-800');
+                else if (grade === 'B') gradeSpan.classList.add('bg-green-50', 'text-green-600');
+                else if (grade === 'C') gradeSpan.classList.add('bg-yellow-100', 'text-yellow-800');
+                else if (grade === 'D') gradeSpan.classList.add('bg-orange-100', 'text-orange-800');
+                else gradeSpan.classList.add('bg-red-100', 'text-red-800');
+
+                explanationP.textContent = description;
+                adviceP.textContent = adviceMap[grade] || 'No specific advice available.';
+
+                // Hide form, show result
+                form.closest('.bg-white').classList.add('hidden');
+                resultCard.classList.remove('hidden');
+            });
+
+            // Reset form when clicking "Check another product"
+            newCheckBtn.addEventListener('click', function() {
+                form.reset();
+                form.closest('.bg-white').classList.remove('hidden');
+                resultCard.classList.add('hidden');
+            });
+        })();
+    </script>
 </body>
 </html>
