@@ -3,26 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCheck – Is it really green?</title>
+    <title>EcoCheck – Expose Greenwashing</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Smooth transitions */
+        .card { transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); }
+        .grade-badge { transition: all 0.2s; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="bg-gray-50 p-4 md:p-6">
-    <div id="app" class="max-w-6xl mx-auto">
+<body class="bg-gray-50 p-4 md:p-6 font-sans">
+    <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-green-700">🌱 EcoCheck</h1>
-            <p class="text-gray-600 mt-2">Find out if that "eco-friendly" product is the real deal.</p>
+        <header class="text-center mb-6">
+            <h1 class="text-5xl font-bold text-green-700">🌱 EcoCheck</h1>
+            <p class="text-gray-600 mt-2 text-lg">Your weapon against greenwashing – see the real story behind "eco-friendly" claims.</p>
         </header>
+
+        <!-- Greenwashing Explainer (Collapsible) -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-blue-800"><i class="fas fa-info-circle mr-2"></i> What is greenwashing?</h2>
+                <button id="toggleExplain" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-chevron-down"></i> <span id="toggleText">Show</span>
+                </button>
+            </div>
+            <div id="explainerContent" class="hidden mt-3 text-sm text-gray-700">
+                <p>Companies often use misleading tactics to appear more environmentally friendly than they are. Common red flags:</p>
+                <ul class="list-disc ml-6 mt-2 space-y-1">
+                    <li><strong>Vague terms:</strong> "all-natural", "eco-friendly", "green" – no proof.</li>
+                    <li><strong>Hidden trade-offs:</strong> "Recycled" but non-recyclable packaging.</li>
+                    <li><strong>Irrelevant claims:</strong> "CFC-free" (CFCs are already banned).</li>
+                    <li><strong>Lesser of two evils:</strong> "Organic cigarettes" – still harmful.</li>
+                    <li><strong>Fake labels:</strong> Lookalike certifications that don't exist.</li>
+                </ul>
+                <p class="mt-2">Our grades cut through the noise. Hover over any grade to see our criteria.</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-3 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-green-600" id="totalProducts">0</div>
+                <div class="text-xs text-gray-500">Products Rated</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-green-600" id="avgGrade">-</div>
+                <div class="text-xs text-gray-500">Average Grade</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-green-600" id="countA">0</div>
+                <div class="text-xs text-gray-500">Grade A</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-red-600" id="countF">0</div>
+                <div class="text-xs text-gray-500">Grade F (Greenwashed)</div>
+            </div>
+        </div>
 
         <!-- Search & Filters -->
         <div class="bg-white p-4 rounded-lg shadow-md mb-6">
             <div class="flex flex-col md:flex-row gap-4">
                 <input type="text" id="search" placeholder="Search product or brand..." 
                        class="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
-                
                 <select id="categoryFilter" class="p-2 border border-gray-300 rounded">
                     <option value="">All Categories</option>
                     <option value="Cleaning">Cleaning</option>
@@ -30,7 +77,6 @@
                     <option value="Clothing">Clothing</option>
                     <option value="Personal Care">Personal Care</option>
                 </select>
-
                 <select id="gradeFilter" class="p-2 border border-gray-300 rounded">
                     <option value="">All Grades</option>
                     <option value="A">A (Excellent)</option>
@@ -42,14 +88,39 @@
             </div>
         </div>
 
-        <!-- Results Grid -->
-        <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Cards will be injected here by JavaScript -->
+        <!-- Suggest a Product Button & Form -->
+        <div class="mb-6">
+            <button id="suggestBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                <i class="fas fa-plus-circle mr-2"></i> Suggest a Product
+            </button>
+            <div id="suggestionForm" class="hidden mt-4 p-4 bg-white rounded-lg shadow border">
+                <h3 class="font-bold text-lg mb-2">Suggest a product to review</h3>
+                <input type="text" id="suggestName" placeholder="Product name" class="w-full p-2 border rounded mb-2">
+                <input type="text" id="suggestBrand" placeholder="Brand" class="w-full p-2 border rounded mb-2">
+                <select id="suggestCategory" class="w-full p-2 border rounded mb-2">
+                    <option value="Cleaning">Cleaning</option>
+                    <option value="Snacks">Snacks</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Personal Care">Personal Care</option>
+                </select>
+                <textarea id="suggestReason" placeholder="Why should we look into this product?" class="w-full p-2 border rounded mb-2" rows="2"></textarea>
+                <div class="flex gap-2">
+                    <button id="submitSuggestion" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Submit</button>
+                    <button id="cancelSuggestion" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+                </div>
+            </div>
+            <!-- Pending suggestions (stored locally) -->
+            <div id="pendingSuggestions" class="mt-4"></div>
         </div>
 
-        <!-- Footer (optional) -->
-        <footer class="text-center text-gray-500 text-sm mt-8">
-            Data for demo purposes. Sources linked in each product.
+        <!-- Results Grid -->
+        <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Cards will be injected here -->
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm mt-8 border-t pt-4">
+            Data curated from public sources. Last updated: <span id="globalLastUpdated">2025-02-20</span>.
         </footer>
     </div>
 
